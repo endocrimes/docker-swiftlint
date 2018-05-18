@@ -1,15 +1,23 @@
-.PHONY: clean build release
+.PHONY: check-env clean build release
 
-NAME := swiftlint
+IMAGE_NAME := swiftlint
 
 clean:
-	rm Dockerfile
+	rm -f Dockerfile
 
 ./Dockerfile:
-	m4 -DSWIFTLINTREV=$(REV) ./Dockerfile.m4 > ./Dockerfile
+	m4 -DSWIFT_VERSION=$(SWIFT_VERSION) ./Dockerfile.m4 > ./Dockerfile
 
-build: ./Dockerfile
-	docker build . -t $(NAME):$(REV)
+build: check-env clean ./Dockerfile
+	docker build . --build-arg SWIFTLINT_REVISION="$(SWIFTLINT_REVISION)" --tag $(IMAGE_NAME):$(SWIFTLINT_REVISION)
 
 release: build
-	docker push $(NAME):$(REV)
+	docker push $(IMAGE_NAME):$(SWIFTLINT_REVISION)
+
+check-env:
+ifndef SWIFTLINT_REVISION
+  $(error SWIFTLINT_REVISION is undefined)
+endif
+ifndef SWIFT_VERSION
+  $(error SWIFT_VERSION is undefined)
+endif
