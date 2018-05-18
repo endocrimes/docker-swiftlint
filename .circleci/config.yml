@@ -36,5 +36,5 @@ jobs:
       - checkout
       - run: make build
       - run: docker run dantoml/swiftlint:${SWIFTLINT_REVISION} help
-      - run: docker login -u ${DOCKER_HUB_USER} -p ${DOCKER_HUB_PASSWORD}
+      - run: docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
       - run: make release
