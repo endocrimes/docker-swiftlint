@@ -1,13 +1,14 @@
-version: 2
+version: 2.1
 
-references:
-  env: &env
+executors:
+  docker-builder:
+    machine:
+      docker_layer_caching: true
     environment:
       SWIFTLINT_REVISION: "0.25.1"
       SWIFT_VERSION: "4.1"
 
 workflows:
-  version: 2
   build_deploy:
     jobs:
       - build
@@ -20,18 +21,14 @@ workflows:
 
 jobs:
   build:
-    machine:
-      docker_layer_caching: true
-    <<: *env
+    executor: docker-builder
     steps:
       - checkout
       - run: make build
       - run: docker run endocrimes/swiftlint:${SWIFTLINT_REVISION} help
 
   deploy:
-    machine:
-      docker_layer_caching: true
-    <<: *env
+    executor: docker-builder
     steps:
       - checkout
       - run: make build
