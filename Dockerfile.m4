@@ -13,7 +13,7 @@ RUN git reset --hard "${SWIFTLINT_REVISION}"
 RUN git submodule update --init --recursive; make install
 RUN cd ../ && rm -rf SwiftLint
 
-RUN swiftlint version
+# RUN swiftlint version
 
 VOLUME "${LINT_WORK_DIR}"
 WORKDIR "${LINT_WORK_DIR}"
