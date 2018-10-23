@@ -12,6 +12,7 @@ workflows:
   build_deploy:
     jobs:
       - build
+      - deploy-kaniko
       - deploy:
           requires: [build]
           filters:
@@ -35,3 +36,24 @@ jobs:
       - run: docker run dantoml/swiftlint:${SWIFTLINT_REVISION} help
       - run: docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
       - run: make release
+
+  deploy-kaniko:
+    docker:
+      - image: dantoml/kaniko-circle:latest
+    environment:
+      SWIFTLINT_REVISION: "0.25.1"
+      SWIFT_VERSION: "4.1"
+    steps:
+      - checkout
+      - run:
+          name: Docker Login
+          command: |
+            echo "{\"auths\": {\"https://index.docker.io/v1/\": {\"auth\": \"$DOCKER_AUTH_TOKEN\"}}}" > /root/.docker/config.json
+      - run: apk add --no-cache make m4
+      - run: make Dockerfile
+      - run: |
+          /kaniko/executor --dockerfile=Dockerfile \
+            --build-arg SWIFTLINT_REVISION="${SWIFTLINT_REVISION}" \
+            --destination=dantoml/kaniko-swiftlint
+
+
